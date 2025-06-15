@@ -18,7 +18,7 @@ const swiper = new Swiper('.swiper-container', {
 
 let isDraggingText = false;
 document.addEventListener('mousedown', (e) => {
-  if (e.target.classList.contains('text-layer')) {
+  if (e.target.classList.contains('text-layer') || e.target.classList.contains('slide-default-text')) {
     isDraggingText = true;
     swiper.allowTouchMove = false;
   }
@@ -39,31 +39,61 @@ const textContentArea = document.getElementById('text-content');
 const deleteBtn = document.getElementById('delete-text');
 
 window.addEventListener('DOMContentLoaded', () => {
+  // Load saved text data (including default and added)
   const savedTextData = JSON.parse(localStorage.getItem('invitationTextData')) || [];
+
   savedTextData.forEach(data => {
     const slide = document.querySelectorAll('.swiper-slide')[data.slideIndex];
-    const newText = createTextLayer(data);
-    slide.appendChild(newText);
+
+    if (data.isDefaultText) {
+      // Find existing default text element on this slide or create if missing
+      let defaultText = slide.querySelector('.slide-default-text');
+      if (!defaultText) {
+        defaultText = createTextLayer(data, true);
+        slide.appendChild(defaultText);
+      } else {
+        // Update default text content and styles
+        defaultText.innerText = data.text || defaultText.innerText;
+        defaultText.style.top = data.top || defaultText.style.top;
+        defaultText.style.left = data.left || defaultText.style.left;
+        defaultText.style.fontSize = data.fontSize || defaultText.style.fontSize;
+        defaultText.style.color = data.color || defaultText.style.color;
+        defaultText.style.fontFamily = data.fontFamily || defaultText.style.fontFamily;
+      }
+      makeDraggable(defaultText);
+      addLayerListeners(defaultText);
+    } else {
+      // Normal text-layer
+      const newText = createTextLayer(data);
+      slide.appendChild(newText);
+    }
   });
 
-  // Enable dragging and editing for existing text layers
-  document.querySelectorAll('.text-layer, .slide-default-text').forEach(layer => {
-    if (layer.classList.contains('text-layer')) {
-      makeDraggable(layer);
-    }
+  // For any default texts in DOM without saved data
+  document.querySelectorAll('.slide-default-text').forEach(layer => {
+    makeDraggable(layer);
+    addLayerListeners(layer);
+  });
 
-    layer.addEventListener('click', (e) => {
-      e.stopPropagation();
-      selectTextLayer(layer);
-    });
-
-    layer.setAttribute('contenteditable', 'true');
+  // For added or existing .text-layer
+  document.querySelectorAll('.text-layer').forEach(layer => {
+    makeDraggable(layer);
+    addLayerListeners(layer);
   });
 });
+
+function addLayerListeners(layer) {
+  layer.addEventListener('click', (e) => {
+    e.stopPropagation();
+    selectTextLayer(layer);
+  });
+  layer.setAttribute('contenteditable', 'true');
+}
 
 function saveAllTextLayers() {
   const allTextData = [];
   document.querySelectorAll('.swiper-slide').forEach((slide, slideIndex) => {
+    // Save .text-layer elements
     slide.querySelectorAll('.text-layer').forEach(layer => {
       allTextData.push({
         text: layer.innerText,
@@ -72,31 +102,52 @@ function saveAllTextLayers() {
         fontSize: layer.style.fontSize,
         fontFamily: layer.style.fontFamily,
         color: layer.style.color,
-        slideIndex: slideIndex
+        slideIndex: slideIndex,
+        isDefaultText: false,
       });
     });
+    // Save .slide-default-text element if exists
+    const defaultText = slide.querySelector('.slide-default-text');
+    if (defaultText) {
+      allTextData.push({
+        text: defaultText.innerText,
+        top: defaultText.style.top,
+        left: defaultText.style.left,
+        fontSize: defaultText.style.fontSize,
+        fontFamily: defaultText.style.fontFamily,
+        color: defaultText.style.color,
+        slideIndex: slideIndex,
+        isDefaultText: true,
+      });
+    }
   });
   localStorage.setItem('invitationTextData', JSON.stringify(allTextData));
 }
 
-function createTextLayer(data) {
+function createTextLayer(data, isDefault = false) {
   const newText = document.createElement('div');
-  newText.className = 'text-layer';
+  if (isDefault) {
+    newText.className = 'slide-default-text';
+  } else {
+    newText.className = 'text-layer';
+  }
   newText.contentEditable = true;
-  newText.innerText = data.text || 'New Text';
+  newText.innerText = data.text || (isDefault ? 'Default Text' : 'New Text');
   newText.style.position = 'absolute';
-  newText.style.top = data.top || '50%';
-  newText.style.left = data.left || '10%';
-  newText.style.fontSize = data.fontSize || '24px';
+  newText.style.top = data.top || (isDefault ? '50%' : '50%');
+  newText.style.left = data.left || (isDefault ? '50%' : '10%');
+  newText.style.fontSize = data.fontSize || (isDefault ? '24px' : '24px');
   newText.style.color = data.color || '#8c3e08';
-  newText.style.fontFamily = data.fontFamily || 'Arial';
+  newText.style.fontFamily = data.fontFamily || (isDefault ? 'Georgia, serif' : 'Arial');
+
+  if (isDefault) {
+    newText.style.transform = 'translate(-50%, -50%)'; // Keep centered for default text initially
+  } else {
+    newText.style.transform = 'none';
+  }
 
   makeDraggable(newText);
-
-  newText.addEventListener('click', (e) => {
-    e.stopPropagation();
-    selectTextLayer(newText);
-  });
+  addLayerListeners(newText);
 
   return newText;
 }
@@ -131,6 +182,12 @@ document.body.addEventListener('click', () => {
 function makeDraggable(el) {
   el.addEventListener('mousedown', function (e) {
     e.preventDefault();
+    // Remove transform temporarily for drag calculations
+    if (el.style.transform) {
+      el.style.transformBackup = el.style.transform;
+      el.style.transform = 'none';
+    }
+
     const offsetX = e.clientX - el.getBoundingClientRect().left;
     const offsetY = e.clientY - el.getBoundingClientRect().top;
 
@@ -139,8 +196,11 @@ function makeDraggable(el) {
       const bounds = parent.getBoundingClientRect();
       let newLeft = e.clientX - bounds.left - offsetX;
       let newTop = e.clientY - bounds.top - offsetY;
+
+      // Boundaries so text doesn't go outside slide
       newLeft = Math.max(0, Math.min(newLeft, bounds.width - el.offsetWidth));
       newTop = Math.max(0, Math.min(newTop, bounds.height - el.offsetHeight));
+
       el.style.left = newLeft + 'px';
       el.style.top = newTop + 'px';
     }
@@ -148,6 +208,12 @@ function makeDraggable(el) {
     function stopDrag() {
       document.removeEventListener('mousemove', moveAt);
       document.removeEventListener('mouseup', stopDrag);
+
+      // Restore transform if it was there
+      if (el.style.transformBackup) {
+        el.style.transform = el.style.transformBackup;
+        delete el.style.transformBackup;
+      }
       saveAllTextLayers();
     }
 
@@ -199,7 +265,12 @@ textContentArea.addEventListener('input', () => {
 
 deleteBtn.addEventListener('click', () => {
   if (selectedText && selectedText.parentElement) {
-    selectedText.parentElement.removeChild(selectedText);
+    // Don't allow deleting default text, just clear text content instead
+    if (selectedText.classList.contains('slide-default-text')) {
+      selectedText.innerText = '';
+    } else {
+      selectedText.parentElement.removeChild(selectedText);
+    }
     selectedText = null;
     editPanel.classList.add('hidden');
     saveAllTextLayers();
