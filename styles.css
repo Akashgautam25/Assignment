@@ -155,12 +155,11 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   color: #8c3e08;
-  font-size: 5vw;
-  max-font-size: 24px;
+  font-size: 24px; /* fixed font size */
   font-family: 'Georgia', serif;
   text-align: center;
   background-color: transparent;
-  padding: 10px 5vw;
+  padding: 10px 20px;
   border-radius: 8px;
   z-index: 2;
   pointer-events: auto;
@@ -171,6 +170,7 @@ body {
   box-shadow: none;
   user-select: text;
 }
+
 
 .slide-default-text.dragging {
   transform: none !important;
