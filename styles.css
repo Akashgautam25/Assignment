@@ -11,24 +11,34 @@ body {
 
 .app-container {
   text-align: center;
+  padding: 10px;
+  width: 100%;
+  max-width: 480px; /* Limits container width on large screens */
+  box-sizing: border-box;
 }
 
 .heading {
-  font-size: 48px;
+  font-size: 6vw; /* Responsive font size */
+  max-font-size: 48px;
   color: #333;
+  margin-bottom: 20px;
 }
 
 .swiper-wrapper-container {
   position: relative;
   display: inline-block;
+  width: 100%;
+  max-width: 432px;
 }
 
 .swiper-container {
-  width: 432px;
-  height: 768px;
+  width: 100%;
+  aspect-ratio: 9 / 16; /* Maintain 432x768 ratio responsively */
   border: 1px solid #ccc;
   position: relative;
   overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
 }
 
 .slide-image {
@@ -44,14 +54,30 @@ body {
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
+  font-size: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+.swiper-button-prev:hover,
+.swiper-button-next:hover {
+  background: rgba(255, 255, 255, 1);
 }
 
 .swiper-button-prev {
-  left: -40px;
+  left: -3rem;
 }
 
 .swiper-button-next {
-  right: -40px;
+  right: -3rem;
 }
 
 .swiper-pagination-bullet {
@@ -61,23 +87,26 @@ body {
 .Add-text {
   background: #8c3e08;
   color: white;
-  width: 160px;
+  width: 40vw;
+  max-width: 160px;
   height: 48px;
-  font-size: x-large;
+  font-size: 1.25rem;
   cursor: pointer;
   position: absolute;
-  bottom: 4px;
+  bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
   border: none;
   border-radius: 6px;
+  user-select: none;
 }
 
 .edit-panel {
   position: fixed;
-  top: 100px;
-  right: 20px;
+  top: 10vh;
+  right: 2vw;
   width: 250px;
+  max-width: 90vw;
   background: #ffffff;
   padding: 15px;
   border: 1px solid #ddd;
@@ -101,6 +130,8 @@ body {
   padding: 5px;
   border-radius: 4px;
   border: 1px solid #ccc;
+  font-size: 1rem;
+  box-sizing: border-box;
 }
 
 .hidden {
@@ -117,18 +148,19 @@ body {
   margin-top: 16px;
 }
 
-/* ✅ New CSS for Default Text in Each Slide */
+/* Default text on each slide */
 .slide-default-text {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   color: #8c3e08;
-  font-size: 24px;
+  font-size: 5vw;
+  max-font-size: 24px;
   font-family: 'Georgia', serif;
   text-align: center;
   background-color: transparent;
-  padding: 10px 20px;
+  padding: 10px 5vw;
   border-radius: 8px;
   z-index: 2;
   pointer-events: auto;
@@ -137,20 +169,45 @@ body {
   line-height: 1.4;
   outline: none;
   box-shadow: none;
+  user-select: text;
 }
-/* For dragging, remove the transform while dragging */
+
 .slide-default-text.dragging {
   transform: none !important;
 }
 
-/* Ensure .slide-default-text is positioned absolutely, draggable, editable */
-.slide-default-text {
-  cursor: move;
-  white-space: pre-wrap;
-  user-select: text;
-}
-
-/* Remove pointer-events none to enable interaction */
-.slide-default-text {
-  pointer-events: auto;
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .swiper-button-prev {
+    left: -2rem;
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+  .swiper-button-next {
+    right: -2rem;
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  .Add-text {
+    width: 60vw;
+    font-size: 1rem;
+  }
+  
+  .edit-panel {
+    top: 5vh;
+    right: 5vw;
+    width: 90vw;
+  }
+  
+  .slide-default-text {
+    font-size: 4vw;
+    padding: 8px 4vw;
+  }
+  
+  .heading {
+    font-size: 5vw;
+  }
 }
