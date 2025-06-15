@@ -46,13 +46,18 @@ window.addEventListener('DOMContentLoaded', () => {
     slide.appendChild(newText);
   });
 
-  // Enable dragging on existing HTML text layers
-  document.querySelectorAll('.text-layer').forEach(layer => {
-    makeDraggable(layer);
+  // Enable dragging and editing for existing text layers
+  document.querySelectorAll('.text-layer, .slide-default-text').forEach(layer => {
+    if (layer.classList.contains('text-layer')) {
+      makeDraggable(layer);
+    }
+
     layer.addEventListener('click', (e) => {
       e.stopPropagation();
       selectTextLayer(layer);
     });
+
+    layer.setAttribute('contenteditable', 'true');
   });
 });
 
@@ -87,10 +92,12 @@ function createTextLayer(data) {
   newText.style.fontFamily = data.fontFamily || 'Arial';
 
   makeDraggable(newText);
+
   newText.addEventListener('click', (e) => {
     e.stopPropagation();
     selectTextLayer(newText);
   });
+
   return newText;
 }
 
@@ -106,10 +113,12 @@ function addText() {
 function selectTextLayer(layer) {
   selectedText = layer;
   const style = window.getComputedStyle(layer);
+
   fontSelect.value = style.fontFamily.replaceAll('"', '').split(',')[0];
   fontSizeInput.value = parseInt(style.fontSize);
   fontColorInput.value = rgbToHex(style.color);
   textContentArea.value = selectedText.innerText;
+
   editPanel.classList.remove('hidden');
 }
 
@@ -124,6 +133,7 @@ function makeDraggable(el) {
     e.preventDefault();
     const offsetX = e.clientX - el.getBoundingClientRect().left;
     const offsetY = e.clientY - el.getBoundingClientRect().top;
+
     function moveAt(e) {
       const parent = el.closest('.swiper-slide');
       const bounds = parent.getBoundingClientRect();
@@ -134,11 +144,13 @@ function makeDraggable(el) {
       el.style.left = newLeft + 'px';
       el.style.top = newTop + 'px';
     }
+
     function stopDrag() {
       document.removeEventListener('mousemove', moveAt);
       document.removeEventListener('mouseup', stopDrag);
       saveAllTextLayers();
     }
+
     document.addEventListener('mousemove', moveAt);
     document.addEventListener('mouseup', stopDrag);
   });
@@ -156,30 +168,35 @@ function rgbToHex(rgb) {
   );
 }
 
+// Input bindings
 fontSelect.addEventListener('change', () => {
   if (selectedText) {
     selectedText.style.fontFamily = fontSelect.value;
     saveAllTextLayers();
   }
 });
+
 fontSizeInput.addEventListener('input', () => {
   if (selectedText) {
     selectedText.style.fontSize = fontSizeInput.value + 'px';
     saveAllTextLayers();
   }
 });
+
 fontColorInput.addEventListener('input', () => {
   if (selectedText) {
     selectedText.style.color = fontColorInput.value;
     saveAllTextLayers();
   }
 });
+
 textContentArea.addEventListener('input', () => {
   if (selectedText) {
     selectedText.innerText = textContentArea.value;
     saveAllTextLayers();
   }
 });
+
 deleteBtn.addEventListener('click', () => {
   if (selectedText && selectedText.parentElement) {
     selectedText.parentElement.removeChild(selectedText);
