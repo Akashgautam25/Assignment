@@ -138,3 +138,19 @@ body {
   outline: none;
   box-shadow: none;
 }
+/* For dragging, remove the transform while dragging */
+.slide-default-text.dragging {
+  transform: none !important;
+}
+
+/* Ensure .slide-default-text is positioned absolutely, draggable, editable */
+.slide-default-text {
+  cursor: move;
+  white-space: pre-wrap;
+  user-select: text;
+}
+
+/* Remove pointer-events none to enable interaction */
+.slide-default-text {
+  pointer-events: auto;
+}
