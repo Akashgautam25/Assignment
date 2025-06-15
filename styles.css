@@ -8,17 +8,21 @@ body {
   height: 100vh;
   font-family: sans-serif;
 }
+
 .app-container {
   text-align: center;
 }
+
 .heading {
   font-size: 48px;
   color: #333;
 }
+
 .swiper-wrapper-container {
   position: relative;
   display: inline-block;
 }
+
 .swiper-container {
   width: 432px;
   height: 768px;
@@ -26,11 +30,13 @@ body {
   position: relative;
   overflow: hidden;
 }
+
 .slide-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .swiper-button-prev,
 .swiper-button-next {
   color: black;
@@ -39,21 +45,25 @@ body {
   transform: translateY(-50%);
   z-index: 10;
 }
+
 .swiper-button-prev {
   left: -40px;
 }
+
 .swiper-button-next {
   right: -40px;
 }
+
 .swiper-pagination-bullet {
   background: black !important;
 }
+
 .Add-text {
   background: #8c3e08;
   color: white;
   width: 160px;
   height: 48px;
-  font-size:x-large;
+  font-size: x-large;
   cursor: pointer;
   position: absolute;
   bottom: 4px;
@@ -75,12 +85,14 @@ body {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   z-index: 999;
 }
+
 .edit-panel label {
   display: block;
   margin-top: 10px;
   font-size: 14px;
   color: #333;
 }
+
 .edit-panel select,
 .edit-panel input,
 .edit-panel textarea {
@@ -90,14 +102,39 @@ body {
   border-radius: 4px;
   border: 1px solid #ccc;
 }
+
 .hidden {
   display: none;
 }
+
 .text-layer {
   cursor: move;
   position: absolute;
   white-space: pre-wrap;
 }
-.delete-btn{
+
+.delete-btn {
   margin-top: 16px;
+}
+
+/* ✅ New CSS for Default Text in Each Slide */
+.slide-default-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #8c3e08;
+  font-size: 24px;
+  font-family: 'Georgia', serif;
+  text-align: center;
+  background-color: transparent;
+  padding: 10px 20px;
+  border-radius: 8px;
+  z-index: 2;
+  pointer-events: auto;
+  cursor: text;
+  max-width: 80%;
+  line-height: 1.4;
+  outline: none;
+  box-shadow: none;
 }
